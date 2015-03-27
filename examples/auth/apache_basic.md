@@ -58,8 +58,10 @@ Here is an example of using a file-backed Basic authentication:
   SSLProxyMachineCertificateFile /etc/pki/tls/certs/openshift-client.pem
 
   # Insert your backend server name/ip here.
-  ProxyPass / https://ose3-master.example.com:8443/
-  ProxyPassReverse / https://ose3-master.example.com:8443/
+  <Location "/">
+    ProxyPass https://ose3-master.example.com:8443/
+    ProxyPassReverse https://ose3-master.example.com:8443/
+  </Location>
 
   # Requests should be able to access /oauth/token/request and
   # /oauth/token/display without authentication.  In the case of
@@ -87,14 +89,14 @@ Here is an example of using a file-backed Basic authentication:
 
   # All other requests should use Bearer tokens.  These can only be verified by
   # OpenShift so we need to let these requests pass through.
-  <Proxy *>
+  <ProxyMatch ^/oauth/>
     SetEnvIfNoCase Authorization Bearer passthrough
     Allow from env=passthrough
 
     Order Deny,Allow
     Deny from all
     Satisfy any
-  </Proxy>
+  </ProxyMatch>
 </VirtualHost>
 
 RequestHeader unset X-Remote-User
